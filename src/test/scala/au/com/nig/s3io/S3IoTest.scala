@@ -4,8 +4,7 @@ import au.com.nig.s3io.S3Io._
 import com.amazonaws.services.s3.model.S3ObjectSummary
 import org.scalatest.{Matchers, WordSpec}
 
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 
 class S3IoTest extends WordSpec with Matchers {
   def s3Object(key: String): S3ObjectSummary = {
@@ -24,16 +23,6 @@ class S3IoTest extends WordSpec with Matchers {
         case event @ BrowseError(_, _, _) =>
           Seq()
       }).map(_.sum)
-  }
-  "S3IO" should {
-    "list the files from a bucket" ignore {
-      listS3Objects("biae-curated-dev", "REMEDY").length shouldEqual 1786
-    }
-    "list the files from a bucket by folder" ignore {
-      val futureCount = countFolders("biae-dev-raw", "")
-      val count = Await.result(futureCount, Duration.Inf)
-      count shouldEqual 5890
-    }
   }
 
   "iterate" should {

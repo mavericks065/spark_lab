@@ -8,6 +8,7 @@ version := "0.1"
 scalaVersion := "2.11.12"
 
 val avroVersion = "1.8.1"
+val awsSdkVersion = "1.11.336"
 
 libraryDependencies += "org.apache.spark" %% "spark-sql" % "2.4.0" % Provided
 libraryDependencies += "org.apache.spark" %% "spark-streaming" % "2.4.0" % Provided
@@ -31,6 +32,15 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % Test
 libraryDependencies += "com.typesafe" % "config" % "1.3.3"
 
 dependencyOverrides += "org.apache.hadoop" % "hadoop-client" % "2.8.5"
+dependencyOverrides += "commons-net" % "commons-net" % "3.6"
+dependencyOverrides += "commons-codec" % "commons-codec" % "1.11"
+dependencyOverrides += "commons-logging" % "commons-logging" % "1.1.3"
+dependencyOverrides += "com.amazonaws" % "aws-java-sdk-core" % awsSdkVersion
+dependencyOverrides += "com.amazonaws" % "aws-java-sdk-dynamodb" % awsSdkVersion
+dependencyOverrides += "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion
+dependencyOverrides += "com.amazonaws" % "aws-java-sdk-athena" % awsSdkVersion
+dependencyOverrides += "com.amazonaws" % "aws-java-sdk-sns" % awsSdkVersion
+dependencyOverrides += "net.minidev" % "json-smart" % "2.3"
 
 libraryDependencies ++= Seq(
   ("org.apache.hadoop" % "hadoop-aws" % "2.8.5").

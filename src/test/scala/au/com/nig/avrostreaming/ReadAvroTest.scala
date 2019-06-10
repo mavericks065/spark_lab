@@ -18,7 +18,7 @@ class ReadAvroTest extends WordSpec {
       val ssc = new StreamingContext(session.sparkContext, Milliseconds(500))
 
       val input = StreamingFileInput("src/test/resources/streaming/avroInput")
-      val df = session.read.format("avro").load("src/test/resources/streaming/avro/brm_1.avro")
+      val df = session.read.format("avro").load("src/test/resources/streaming/avro/rm_1.avro")
       df.show()
       val streamingDf = ReadAvro.readAvro(ssc, input, df.schema)
 
@@ -29,10 +29,10 @@ class ReadAvroTest extends WordSpec {
       stream.start()
 
 
-      val src = "src/test/resources/streaming/avro/brm_1.avro"
-      val src2 = "src/test/resources/streaming/avro/brm_2.avro"
-      val dest = "src/test/resources/streaming/avroInput/brm_1.avro"
-      val dest2 = "src/test/resources/streaming/avroInput/brm_2.avro"
+      val src = "src/test/resources/streaming/avro/rm_1.avro"
+      val src2 = "src/test/resources/streaming/avro/rm_2.avro"
+      val dest = "src/test/resources/streaming/avroInput/rm_1.avro"
+      val dest2 = "src/test/resources/streaming/avroInput/rm_2.avro"
 
       Thread.sleep(1500)
 
