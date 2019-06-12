@@ -5,12 +5,14 @@ import java.util.concurrent.Executors.newFixedThreadPool
 
 import com.amazonaws.ClientConfiguration
 import com.amazonaws.regions.Regions.AP_SOUTHEAST_2
-import com.amazonaws.services.s3.AmazonS3
+import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 import com.amazonaws.services.s3.model._
+import com.amazonaws.services.s3.transfer.TransferManagerBuilder
 
 import scala.concurrent.ExecutionContext.fromExecutor
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.Try
+import scala.collection.JavaConversions._
 
 case class S3Folder(bucket: String, path: String, files: Seq[S3ObjectSummary], subFolders: Seq[String] = Seq())
 
@@ -71,7 +73,7 @@ object S3Io {
     * - the function receives the previous object as a parameter or None for the first call
     * - the function should return Some(object) or None when finished
     */
-  private[io] def iterate[T](fn: Option[T] => Option[T]): Iterator[T] = Iterator
+  private[s3io] def iterate[T](fn: Option[T] => Option[T]): Iterator[T] = Iterator
     .iterate[Option[T]](None)(fn)
     .drop(1) // the first element was None
     .takeWhile(_.isDefined)
@@ -99,8 +101,7 @@ object S3Io {
         Some(execute(newRequest.withContinuationToken(response.getNextContinuationToken)))
       case _ => // finished
         None
-    }
-      .flatMap(_.getObjectSummaries.toList) // toList to force conversion to a scala list so that IntelliJ is happy
+    }.flatMap(_.getObjectSummaries.toList) // toList to force conversion to a scala list so that IntelliJ is happy
   }
 
   def listS3Folder(bucket: String, path: String): S3Folder = {
@@ -144,7 +145,7 @@ object S3Io {
     }
   }
 
-  private[io] def folder(file: S3ObjectSummary): String = {
+  private[s3io] def folder(file: S3ObjectSummary): String = {
     val path = file.getKey
     path.lastIndexOf('/') match {
       case -1 => path
@@ -152,7 +153,7 @@ object S3Io {
     }
   }
 
-  private[io] def groupByFolder(files: Iterator[S3ObjectSummary]): Iterator[S3Folder] = {
+  private[s3io] def groupByFolder(files: Iterator[S3ObjectSummary]): Iterator[S3Folder] = {
     var remainingFiles = files
     Iterator
       .continually {

@@ -1,9 +1,9 @@
 package au.com.nig
 
-import org.apache.spark.sql.SparkSession
-import org.scalatest.{Matchers, WordSpec}
-import org.apache.spark.sql.functions.{col, lit}
+import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.types.StringType
+import org.apache.spark.sql.{AnalysisException, SparkSession}
+import org.scalatest.{Matchers, WordSpec}
 
 class Experiment extends WordSpec with Matchers {
 
@@ -17,18 +17,22 @@ class Experiment extends WordSpec with Matchers {
         .toDF("col1", "col2", "col3")
 
       val df2 = session.emptyDataFrame
-        .withColumn("col11", lit(null).cast(StringType))
-        .withColumn("col2", lit(null).cast(StringType))
-        .withColumn("col3", lit(null).cast(StringType))
+        .withColumn("col1", lit(null).cast(StringType))
+        .withColumn("col_2", lit("bluh").cast(StringType))
+        .withColumn("col_3", lit("bla").cast(StringType))
 
+      val df3 = Seq((null, "foo", "456"), ("321", "bar", "654"))
+        .toDF("col1", "col2", "col3")
 
       // WHEN
-      val result = df.join(df2, df("col1") <=> df2("col11"), "left")
+      val result = df.join(df2, df("col1") <=> df2("col1"), "left")
 
       // THEN
 
-      result.count() shouldEqual 2
+      result.explain()
+
       result.show()
+      result.count() shouldEqual 2
     }
     "be safe if columns are null" in {
 
@@ -45,12 +49,14 @@ class Experiment extends WordSpec with Matchers {
 
 
       // WHEN
-      val result = df.join(df2, df("col1") <=> df2("col1"), "left")
+      val msg = intercept[AnalysisException] {
+
+        df.join(df2, df("col1") === df2("col1"), "left")
+      }
 
       // THEN
+      assert(msg.getMessage() contains "Cannot resolve column name \"col1\" among (col2, col3);")
 
-      result.count() shouldEqual 2
-      result.show()
     }
   }
   "operator ===" should {
@@ -59,7 +65,7 @@ class Experiment extends WordSpec with Matchers {
       import session.implicits._
 
 
-      val df = Seq(("123", "foo", "456"), ("321", "bar", "654"))
+      val df = Seq((null, "foo", "456"), ("321", "bar", "654"))
         .toDF("col1", "col2", "col3")
 
       val df2 = session.emptyDataFrame
@@ -91,12 +97,13 @@ class Experiment extends WordSpec with Matchers {
 
 
       // WHEN
-      val result = df.join(df2, df("col1") === df2("col1"), "left")
+      val msg = intercept[AnalysisException] {
+
+        df.join(df2, df("col1") === df2("col1"), "left")
+      }
 
       // THEN
-
-      result.count() shouldEqual 2
-      result.show()
+      assert(msg.getMessage() contains "Cannot resolve column name \"col1\" among (col2, col3);")
     }
   }
 
