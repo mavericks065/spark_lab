@@ -5,7 +5,7 @@ import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.{AnalysisException, SparkSession}
 import org.scalatest.{Matchers, WordSpec}
 
-class Experiment extends WordSpec with Matchers {
+class EqualOperatorExperiment extends WordSpec with Matchers {
 
   "operator <=>" should {
     "be safe if values are null" in {
